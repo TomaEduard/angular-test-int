@@ -1,0 +1,144 @@
+<div
+	class="voice-message-container"
+	[class]="messageType()"
+>
+	<audio
+		#audioEl
+		[src]="getAudioSrc()"
+		(loadedmetadata)="onloadedMetadata()"
+		(canplaythrough)="analyzedAudio()"
+		(timeupdate)="onTimeUpdate()"
+		(ended)="onEnded()"
+	></audio>
+
+	<div class="voice-player">
+		<button
+			(click)="togglePlayPause()"
+			class="play-pause-btn"
+			[disabled]="!isLoaded()"
+		>
+			@if (!isLoaded()) {
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					height="24px"
+					viewBox="0 -960 960 960"
+					width="24px"
+					fill="none"
+				>
+					<path
+						d="M320-273v-414q0-17 12-28.5t28-11.5q5 0 10.5 1.5T381-721l326 207q9 6 13.5 15t4.5 19q0 10-4.5 19T707-446L381-239q-5 3-10.5 4.5T360-233q-16 0-28-11.5T320-273Z"
+						fill="currentColor"
+					/>
+				</svg>
+			} @else if (isPlaying()) {
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					height="24px"
+					viewBox="0 -960 960 960"
+					width="24px"
+					fill="none"
+				>
+					<path
+						d="M640-200q-33 0-56.5-23.5T560-280v-400q0-33 23.5-56.5T640-760q33 0 56.5 23.5T720-680v400q0 33-23.5 56.5T640-200Zm-320 0q-33 0-56.5-23.5T240-280v-400q0-33 23.5-56.5T320-760q33 0 56.5 23.5T400-680v400q0 33-23.5 56.5T320-200Z"
+						fill="currentColor"
+					/>
+				</svg>
+			} @else {
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					height="24px"
+					viewBox="0 -960 960 960"
+					width="24px"
+					fill="none"
+				>
+					<path
+						d="M320-273v-414q0-17 12-28.5t28-11.5q5 0 10.5 1.5T381-721l326 207q9 6 13.5 15t4.5 19q0 10-4.5 19T707-446L381-239q-5 3-10.5 4.5T360-233q-16 0-28-11.5T320-273Z"
+						fill="currentColor"
+					/>
+				</svg>
+			}
+		</button>
+
+
+		<div class="waveform-container">
+			<div class="waveform-wrapper"
+			     #waveformWrapperEl
+			     (click)="onWaveformClick($event)"
+			     (mousedown)="startDragging($event)"
+			>
+
+				<div class="waveform-bars">
+					@for (bar of waveformData(); track $index) {
+						<div
+							class="waveform-bar"
+							[style.height.px]="bar"
+							[class.played]="$index < playedBarsCount()"
+							[class.current]="$index === playedBarsCount()"
+						></div>
+					}
+				</div>
+
+				<div
+					class="progress-thumb"
+					[style.left.%]="progressPercentage()"
+					[class.dragging]="isDragging()"
+					(mousedown)="startDragging($event)"
+				></div>
+
+				@if (segmentPointA() !== null && isPointAActive()) {
+					<div 
+						class="segment-marker segment-marker-a"
+						[style.left.%]="getSegmentPointPercentage(segmentPointA())"
+					>
+						<div class="segment-line"></div>
+						<div class="segment-label">A</div>
+					</div>
+				}
+
+				@if (segmentPointB() !== null && isPointBActive()) {
+					<div 
+						class="segment-marker segment-marker-b"
+						[style.left.%]="getSegmentPointPercentage(segmentPointB())"
+					>
+						<div class="segment-line"></div>
+						<div class="segment-label">B</div>
+					</div>
+				}
+			</div>
+
+			<div class="player-controls">
+				<span class="current-time">{{ formatTime(currentTime()) }}</span>
+				<span class="duration">
+					<button class="segment-btn" (click)="onSegment()" [disabled]="isSegmentButtonDisabled()">
+						<span [class.active]="isPointAActive()">A</span>-<span [class.active]="isPointBActive()">B</span>
+					</button>
+					{{ formatTime(duration()) }}
+				</span>
+			</div>
+		</div>
+
+		<div class="speed-btn" (click)="toggleSpeed()">
+			{{ playbackRate() }}
+		</div>
+	</div>
+</div>
+
+
+<pre class="debug">
+	audioSrc: {{ audioSrc() | json}}
+	messageType: {{ messageType() | json}}
+	isLoaded: {{ isLoaded() | json}}
+	isPlaying: {{ isPlaying() | json}}
+	duration: {{ duration() | json}}
+	isAnalyzing: {{ isAnalyzing() | json}}
+	isDragging: {{ isDragging() | json}}
+	progressPercentage: {{ progressPercentage() | json}}
+	playedBarsCount: {{ playedBarsCount() | json}}
+	currentTime: {{ currentTime() | json}}
+	playbackRate: {{ playbackRate() | json}}
+	isPointAActive: {{ isPointAActive() | json}}
+	isPointBActive: {{ isPointBActive() | json}}
+	segmentPointA: {{ (segmentPointA()) | json}}
+	segmentPointB: {{ segmentPointB() | json}}
+	waveformData: {{ waveformData() | json}}
+</pre>
